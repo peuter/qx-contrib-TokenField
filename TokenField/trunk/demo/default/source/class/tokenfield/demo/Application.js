@@ -142,6 +142,10 @@ qx.Class.define("tokenfield.demo.Application",
         left : 600
       });
 
+      /*
+       * some mockup country data. might not be up to date
+       * source: https://gist.github.com/Keeguon/2310008
+       */
       function getCountryData()
       {
           return [
@@ -337,7 +341,8 @@ qx.Class.define("tokenfield.demo.Application",
               {name: 'Sao Tome and Principe', code: 'ST'},
               {name: 'Saudi Arabia', code: 'SA'},
               {name: 'Senegal', code: 'SN'},
-              {name: 'Serbia and Montenegro', code: 'CS'},
+              {name: 'Serbia, Republic of', code: 'RS'},
+              {name: 'Montenegro', code: 'ME'},
               {name: 'Seychelles', code: 'SC'},
               {name: 'Sierra Leone', code: 'SL'},
               {name: 'Singapore', code: 'SG'},
