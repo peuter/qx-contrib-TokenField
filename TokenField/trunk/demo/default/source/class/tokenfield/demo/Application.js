@@ -122,7 +122,7 @@ qx.Class.define("tokenfield.demo.Application",
       bt = new qx.ui.form.Button('Populate');
       bt.addListener("execute", function(e) {
         t.reset();
-        for( i=0;i<4;i++)
+        for( var i=0;i<4;i++)
         {
           t.addToken( mockdata[Math.floor(Math.random()*(mockdata.length + 1))], true );
         }
