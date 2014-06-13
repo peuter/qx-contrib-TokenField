@@ -12,17 +12,17 @@
     "authors" :
     [
       {
-        "name" : "Guilherme R. Aiolfi (guilhermeaiolfi) - original code",
+        "name" : "Guilherme R. Aiolfi (guilhermeaiolfi)",
         "email" : "gradinf AT gmail DOT com"
       },
       {
-        "name" : "Christian Boulanger (cboulanger) - Update to qx v3.x and cotrib 2.0",
+        "name" : "Christian Boulanger (cboulanger)",
         "email" : "info AT bibliograph DOT org"
       }
     ],
 
     "version" : "trunk",
-    "qooxdoo-versions": ["2.0","2.1","3.0","3.5","3.6"],
+    "qooxdoo-versions": ["2.0","2.1","3.0","3.5","4.0"],
   },
 
   "provides" :
