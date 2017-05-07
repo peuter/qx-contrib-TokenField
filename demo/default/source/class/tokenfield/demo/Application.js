@@ -38,12 +38,20 @@ qx.Class.define("tokenfield.demo.Application",
       // Call super class
       this.base(arguments);
 
-
       // support native logging capabilities, e.g. Firebug for Firefox
       qx.log.appender.Native;
 
       // support additional cross-browser console. Press F7 to toggle visibility
       qx.log.appender.Console;
+
+      // label
+      var label = new qx.ui.basic.Label("Choose countries by typing the first two characters...");
+
+      // add to document
+      this.getRoot().add(label,{
+        top : 30,
+        left : 80
+      });
 
       // mockup country data
       var mockdata = getCountryData();
