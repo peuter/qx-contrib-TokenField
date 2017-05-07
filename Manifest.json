@@ -24,7 +24,7 @@
       }
     ],
     "version" : "0.6.0",
-    "qooxdoo-versions": "4.*-5.1",
+    "qooxdoo-versions": "4.*-5.1"
   },
 
   "provides" :
