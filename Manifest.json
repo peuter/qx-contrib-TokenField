@@ -23,8 +23,8 @@
         "url": ""
       }
     ],
-    "version" : "0.6.0",
-    "qooxdoo-versions": "4.*-5.1"
+    "version" : "0.6.2",
+    "qooxdoo-versions": "4.x - 5.x"
   },
 
   "provides" :
