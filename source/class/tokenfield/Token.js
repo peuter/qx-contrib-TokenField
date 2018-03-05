@@ -206,7 +206,6 @@ qx.Class.define("tokenfield.Token",
     this.addListener("click", this._onClick);
 
     // forward the focusin and focusout events to the textfield. The textfield
-
     // is not focusable so the events need to be forwarded manually.
     this.addListener("focusin", function(e) {
       textField.fireNonBubblingEvent("focusin", qx.event.type.Focus);
@@ -250,7 +249,6 @@ qx.Class.define("tokenfield.Token",
       {
         case "label":
           control = new qx.ui.basic.Label();
-
           //control.setWidth(10);
           control.hide();
           break;
@@ -404,16 +402,15 @@ qx.Class.define("tokenfield.Token",
         this.__selected = null;
 
         // I really don't know, but FF needs the timer to be able to set the focus right
-
         // when there is a selected item and the key == 'Left'
         qx.util.TimerManager.getInstance().start(function() {
           this.tabFocus();
         }, null, this, null, 20);
       } else if (key == "Enter" || key == "Space") {
-        if (this._preSelectedItem && this.getChildControl('popup').isVisible())
+        if (this.__preSelectedItem && this.getChildControl('popup').isVisible())
         {
-          this._selectItem(this._preSelectedItem);
-          this._preSelectedItem = null;
+          this._selectItem(this.__preSelectedItem);
+          this.__preSelectedItem = null;
           this.toggle();
         } else if (key == "Space")
         {
@@ -459,9 +456,16 @@ qx.Class.define("tokenfield.Token",
     },
 
     // overridden
-    _onListMouseDown : function(e) {
-      this._selectItem(this._preSelectedItem);
-    },
+    _onListPointerDown : function(e)
+    {
+      this.debug(this.__preSelectedItem);
+      // Apply pre-selected item (translate quick selection to real selection)
+      if (this.__preSelectedItem)
+      {
+        this._selectItem(this.__preSelectedItem);
+        this.__preSelectedItem = null;
+      }
+    },    
 
     // overridden
     _onListChangeSelection : function(e)
@@ -470,15 +474,14 @@ qx.Class.define("tokenfield.Token",
       if (current.length > 0)
       {
         // Ignore quick context (e.g. mouseover)
-
         // and configure the new value when closing the popup afterwards
         var list = this.getChildControl("list");
         var popup = this.getChildControl("popup");
         var context = list.getSelectionContext();
         if (popup.isVisible() && (context == "quick" || context == "key")) {
-          this._preSelectedItem = current[0];
+          this.__preSelectedItem = current[0];
         } else {
-          this._preSelectedItem = null;
+          this.__preSelectedItem = null;
         }
       }
     },

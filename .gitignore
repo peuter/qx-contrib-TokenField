@@ -1,10 +1,15 @@
+# generator
 /api/
 /build/
-/inspector/
-/simulator/
-/test/
-/source/script/
-/demo/default/build
-/demo/default/source/script
-/node_modules
+/source/script
+
+# Mac
 .DS_Store
+
+# qooxdoo-compiler
+/*-compiled/
+db.json
+resource-db.json
+
+# npm
+node_modules/

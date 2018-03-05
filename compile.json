@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "qx.icontheme" : "Tango"
+  },
+
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "source-compiled"
+    },
+    {
+      "type": "hybrid",
+      "outputPath": "hybrid-compiled"
+    },
+    {
+      "type": "build",
+      "outputPath": "build-compiled"
+    }
+  ],
+  "defaultTarget": "source",
+  "locales": ["en","de"],
+
+  "applications": [
+    {
+      "class": "tokenfield.demo.Application",
+      "theme": "tokenfield.theme.modern.Theme",
+      "name": "tokenfield.demo",
+      "title" : "Tokenfield Demo"
+    }
+  ],
+
+  "libraries": [
+    "node_modules/qooxdoo-sdk/framework",
+    "."
+  ],
+
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 5
+    }
+  }
+}
