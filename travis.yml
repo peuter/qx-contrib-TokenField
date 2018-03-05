@@ -1,0 +1,15 @@
+install:
+  - pushd node_modules/qxcompiler 
+  - npm link
+  - popd
+
+script:
+  - qx compile --target=build
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+  local-dir: build-compiled
+  on:
+    branch: master
