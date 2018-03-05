@@ -1,34 +1,40 @@
 {
-  "info" :
-  {
-    "name" : "TokenField",
-    "category" : ["form","autocomplete"],
-    "summary" : "TokenField Contribution",
-    "description" : "A widget implementing the token field concept",
-    "homepage" : "https://github.com/cboulanger/qx-contrib-TokenField",
-    "license" : "LGPL/EPL",
-    "authors" : [
+  "info": {
+    "name": "TokenField",
+    "category": [
+      "form",
+      "autocomplete"
+    ],
+    "summary": "TokenField Contribution",
+    "description": "A widget implementing the token field concept",
+    "homepage": "https://github.com/cboulanger/qx-contrib-TokenField",
+    "license": "LGPL/EPL",
+    "authors": [
       {
-        "name" : "Guilherme R. Aiolfi (guilhermeaiolfi)",
-        "email" : "gradinf AT gmail DOT com"
+        "name": "Guilherme R. Aiolfi (guilhermeaiolfi)",
+        "email": "gradinf AT gmail DOT com"
       },
       {
-        "name" : "Christian Boulanger (cboulanger)",
-        "email" : "info AT bibliograph DOT org"
+        "name": "Christian Boulanger (cboulanger)",
+        "email": "info AT bibliograph DOT org"
       }
     ],
-    "version" : "1.0.0",
-    "qooxdoo-versions": ["5.0","5.0.1","5.0.2","6.0.0"],
-    "qooxdoo-range" : "5.x - 6.0 || 6.0.0-*"
+    "version": "1.0.0",
+    "qooxdoo-versions": [
+      "5.0",
+      "5.0.1",
+      "5.0.2",
+      "6.0.0",
+      "6.0.0-alpha"
+    ],
+    "qooxdoo-range": "5.x - 6.0 || 6.0.0-* || 6.0.0-alpha"
   },
-
-  "provides" :
-  {
-    "namespace"   : "tokenfield",
-    "encoding"    : "utf-8",
-    "class"       : "source/class",
-    "resource"    : "source/resource",
-    "translation" : "source/translation",
-    "type"        : "contribution"
+  "provides": {
+    "namespace": "tokenfield",
+    "encoding": "utf-8",
+    "class": "source/class",
+    "resource": "source/resource",
+    "translation": "source/translation",
+    "type": "contribution"
   }
 }
