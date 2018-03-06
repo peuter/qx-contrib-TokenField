@@ -18,6 +18,6 @@ http://cboulanger.github.io/qx-contrib-TokenField/
 - Open your browser at localhost:8080
 
 ## Install in your qooxdoo app
-- `qx update`
-- `qx list`
-- `qx install cboulanger/qx-contrib-TokenField`
+- `qx contrib update`
+- `qx contrib list`
+- `qx contrib install cboulanger/qx-contrib-TokenField`
