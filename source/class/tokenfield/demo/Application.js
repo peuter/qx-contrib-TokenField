@@ -45,7 +45,8 @@ qx.Class.define("tokenfield.demo.Application",
       qx.log.appender.Console;
 
       // label
-      var label = new qx.ui.basic.Label("Choose countries by typing the first two characters...");
+      var label = new qx.ui.basic.Label("<h2>Token Field Demo</h2><p>Choose countries by typing the first two characters...<p>");
+      label.setRich(true);
 
       // add to document
       this.getRoot().add(label,{
@@ -75,8 +76,7 @@ qx.Class.define("tokenfield.demo.Application",
         var str = e.getData();
         var data = [];
         for (var i = 0; i < mockdata.length; i++) {
-          if( mockdata[i].name.toLowerCase().indexOf(str.toLowerCase()) !== -1 )
-          {
+          if( mockdata[i].name.toLowerCase().indexOf(str.toLowerCase()) !== -1 ) {
               data.push(mockdata[i]);
           }
         }
@@ -87,7 +87,7 @@ qx.Class.define("tokenfield.demo.Application",
 
       // add to document
       this.getRoot().add(t,{
-        top : 50,
+        top : 110,
         left : 80
       });
 

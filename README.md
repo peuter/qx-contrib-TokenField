@@ -12,7 +12,7 @@ see [code of Demo application](source/class/tokenfield/demo/Application.js)
 http://cboulanger.github.io/qx-contrib-TokenField/
 
 ## Run the demo locally
-- `npm instal`
+- `npm install`
 - `pushd node_modules/qxcompiler && npm link && popd`
 - `qx serve`
 - Open your browser at localhost:8080
