@@ -175,6 +175,54 @@ qx.Class.define('tokenfield.Token',
      */
     style : {
       init : 'facebook'
+    },
+
+    delegate: {
+      check: 'Map',
+      init: null,
+      apply: '_applyDelegate'
+    },
+
+    /**
+     * A map containing the options for the label binding. The possible keys
+     * can be found in the {@link qx.data.SingleValueBinding} documentation.
+     */
+    labelOptions: {
+      nullable: true
+    },
+
+    /**
+     * A map containing the options for the icon binding. The possible keys
+     * can be found in the {@link qx.data.SingleValueBinding} documentation.
+     */
+    iconOptions: {
+      nullable: true
+    },
+
+    /**
+     * The path to the label in the model
+     */
+    iconPath: {
+      check: 'String',
+      init: null,
+      event: 'changeIconPath'
+    },
+
+    /**
+     * Contains the textfield content, when there is no token available
+     */
+    text: {
+      check: 'String',
+      init: '',
+      event: 'changeText'
+    },
+
+    /**
+     * Close the popup when there are no results found
+     */
+    closeWhenNoResults: {
+      check: 'Boolean',
+      init: false
     }
   },
 
@@ -186,6 +234,7 @@ qx.Class.define('tokenfield.Token',
   construct: function ()
   {
     this.base(arguments);
+    this._tokenClass = qx.ui.form.ListItem;
     this.cache = new tokenfield.Cache();
     this._setLayout(new qx.ui.layout.Flow());
     var textField = this._createChildControl('textfield');
@@ -236,6 +285,7 @@ qx.Class.define('tokenfield.Token',
   {
     SELECTION_MANAGER : tokenfield.SelectionManager,
     _search: null,
+    _tokenClass: null,
 
     /*
     ---------------------------------------------------------------------------
@@ -283,6 +333,65 @@ qx.Class.define('tokenfield.Token',
           break;
       }
       return control || this.base(arguments, id);
+    },
+
+    _applyDelegate: function (value) {
+      if (value) {
+        if (value.hasOwnProperty('createItem')) {
+          this._tokenClass = value.createItem().constructor;
+        } else {
+          this._tokenClass = qx.ui.form.ListItem;
+        }
+      }
+    },
+
+    _createBoundItem: function (model) {
+      var item = this.__createItem();
+      this.__bindItem(model, item);
+      return item;
+    },
+
+    __createItem: function () {
+      var delegate = this.getDelegate();
+      var item;
+      if (delegate && delegate.hasOwnProperty('createItem')) {
+        item = delegate.createItem();
+      } else {
+        item = new (this._tokenClass)();
+      }
+      if (delegate && delegate.hasOwnProperty('configureItem')) {
+        delegate.configureItem(item);
+      } else {
+        item.setRich(true);
+      }
+      return item;
+    },
+
+    __bindItem: function (model, item) {
+      var delegate = this.getDelegate();
+      if (delegate && delegate.bindItem != null) {
+        delegate.bindItem(this, model, item);
+      } else {
+        this.bindDefaultProperties(model, item);
+      }
+    },
+
+    /**
+     * Helper-Method for binding the default properties (label, icon and model)
+     * from the model to the target widget.
+     *
+     * @param model {qx.core.Object} the model the ListItem should be bound to
+     * @param item {Number} The internally created and used ListItem.
+     */
+    bindDefaultProperties: function (model, item) {
+      // model
+      item.setModel(model);
+      model.bind(this.getLabelPath(), item, 'label', this.getLabelOptions());
+
+      // if the iconPath is set
+      if (this.getIconPath() != null) {
+        model.bind(this.getIconPath(), item, 'icon', this.getIconOptions());
+      }
     },
 
     // overridden
@@ -432,25 +541,24 @@ qx.Class.define('tokenfield.Token',
      *
      * @param e {qx.event.type.Data} Data Event
      */
-    _onInputChange: function (e)
-    {
+    _onInputChange: function (e) {
       var str = e.getData();
-      if (str === null || (str !== null && str.length < this.getMinChars())) {
-        return false;
-      }
       var timer = qx.util.TimerManager.getInstance();
 
       // check for the old listener
-      if (this.__timerId !== null)
-      {
+      if (this.__timerId !== null) {
         // stop the old one
         timer.stop(this.__timerId);
         this.__timerId = null;
       }
 
+      if (str == null || (str != null && str.length < this.getMinChars())) {
+        this.setText(str);
+        return false;
+      }
+
       // start a new listener to update the controller
-      this.__timerId = timer.start(function ()
-      {
+      this.__timerId = timer.start(function () {
         this.search(str);
         this.__timerId = null;
       }, 0, this, null, this.getSearchDelay());
@@ -522,25 +630,29 @@ qx.Class.define('tokenfield.Token',
      *    data
      * @return {void}
      */
-    populateList: function (str, data)
-    {
+    populateList: function (str, data) {
       this.cache.add(str, qx.data.marshal.Json.createModel(data));
       var result = this.cache.get(str);
       var list = this.getChildControl('list');
       list.removeAll();
-      if (result.getLength() === 0)
-      {
-        this._dummy.setLabel(this.getNoResultsText());
-        list.add(this._dummy);
+      if (result.getLength() === 0) {
+        this.setText(str);
+        if (this.isCloseWhenNoResults()) {
+          this.close();
+        }
         return;
+      } else {
+        this.resetText();
       }
+      this.setLabelOptions({
+        converter: function (value) {
+          return this.highlight(value, str);
+        }.bind(this)
+      });
+
       for (var i = 0; i < result.getLength(); i++) {
-        if (!this.getSelectOnce() || (this.getSelectOnce() === true && !this._isSelected(result.getItem(i))))
-        {
-          var label = result.getItem(i).get(this.getLabelPath());
-          var item = new qx.ui.form.ListItem(this.highlight(label, str));
-          item.setModel(result.getItem(i));
-          item.setRich(true);
+        if (!this.getSelectOnce() || (this.getSelectOnce() === true && !this._isSelected(result.getItem(i)))) {
+          var item = this._createBoundItem(result.getItem(i), i);
           this.getChildControl('list').add(item);
         }
       }
@@ -553,16 +665,11 @@ qx.Class.define('tokenfield.Token',
      *      of the model.
      * @param selected {Boolean | undefined} Whether the token should be selected
      */
-    addToken: function (data, selected)
-    {
+    addToken: function (data, selected) {
       var model = qx.data.marshal.Json.createModel(data);
-      var label = model.get(this.getLabelPath());
-      var item = new qx.ui.form.ListItem(this.highlight(label, this._search));
-      item.setModel(model);
-      item.setRich(true);
+      var item = this._createBoundItem(model);
       var list = this.getChildControl('list');
-      if (!this.getSelectOnce() || (this.getSelectOnce() === true && !this._isSelected(model)))
-      {
+      if (!this.getSelectOnce() || (this.getSelectOnce() === true && !this._isSelected(model))) {
         if (list.hasChildren() && list.getChildren()[0] === this._dummy) {
           list.remove(this._dummy);
         }
@@ -571,6 +678,52 @@ qx.Class.define('tokenfield.Token',
       if (selected && !this._isSelected(model)) {
         this._selectItem(item);
       }
+    },
+
+    /**
+     * Selects a ListItem that matches the given data's label.
+     * If there is none, one gets created.
+     * @param data {Map} model
+     */
+    selectItem: function (data) {
+      var model = qx.data.marshal.Json.createModel(data);
+      var label = model.get(this.getLabelPath());
+      var item;
+      var isInSelection = false;
+      this.getSelection().some(function (item) {
+        if (item.getLabel() === label) {
+          isInSelection = true;
+          return true;
+        }
+      });
+      if (isInSelection) {
+        return;
+      }
+      this.getChildControl('list').getChildren().some(function (child) {
+        if (child.getLabel() === label) {
+          item = child;
+          return true;
+        }
+      }, this);
+      if (!item) {
+        item = this._createBoundItem(model);
+      }
+      this._selectItem(item);
+    },
+
+    /**
+     * Removes a token from the selection id it matches the data label.
+     * @param data {Map} model
+     */
+    removeItem: function (data) {
+      var model = qx.data.marshal.Json.createModel(data);
+      var label = model.get(this.getLabelPath());
+      this.getSelection().forEach(function (item) {
+        if (item.getLabel() === label) {
+          this._deselectItem(item);
+          return true;
+        }
+      }, this);
     },
 
     /**
@@ -599,8 +752,7 @@ qx.Class.define('tokenfield.Token',
      * @param item {qx.ui.form.ListItem} The List Item to be removed from the selection
      */
     _deselectItem: function (item) {
-      if (item && item.constructor === qx.ui.form.ListItem)
-      {
+      if (item && item.constructor === this._tokenClass) {
         this.removeFromSelection(item);
         this.fireDataEvent('removeItem', item);
         item.destroy();
@@ -615,18 +767,15 @@ qx.Class.define('tokenfield.Token',
     /**
      * Resets the widget
      */
-    reset: function ()
-    {
+    reset: function () {
       this.getSelection().forEach(function (item) {
-        if (item instanceof qx.ui.form.ListItem)
-        {
+        if (item instanceof this._tokenClass) {
           this.removeFromSelection(item);
           item.destroy();
         }
       }, this);
       this.getChildren().forEach(function (item) {
-        if (item instanceof qx.ui.form.ListItem)
-        {
+        if (item instanceof this._tokenClass) {
           this.remove(item);
           item.destroy();
         }
@@ -642,17 +791,14 @@ qx.Class.define('tokenfield.Token',
      * @param old {qx.ui.form.ListItem} The List Item to be added to the selection
      */
     _selectItem: function (old) {
-      if (old && old.constructor === qx.ui.form.ListItem)
-      {
-        var item = this.getSelectOnce() ? old : new qx.ui.form.ListItem();
+      if (old && old.constructor === this._tokenClass) {
+        var item = this.getSelectOnce() ? old : this.__createItem();
         item.setAppearance('tokenitem');
         item.setLabel(old.getModel().get(this.getLabelPath()));
         item.setModel(old.getModel());
         item.getChildControl('icon').setAnonymous(false);
-        item.getChildControl('icon').addListener('click', function (e)
-        {
-          if (this.__selected)
-          {
+        item.getChildControl('icon').addListener('click', function (e) {
+          if (this.__selected) {
             this.__selected.removeState('head');
             this.__selected = null;
           }
@@ -660,8 +806,7 @@ qx.Class.define('tokenfield.Token',
           e.stop();
           this.tabFocus();
         }, this);
-        item.addListener('click', function (e)
-        {
+        item.addListener('click', function (e) {
           item.addState('head');
           if (this.__selected != null && this.__selected !== item) {
             this.__selected.removeState('head');
@@ -684,9 +829,8 @@ qx.Class.define('tokenfield.Token',
         this.fireDataEvent('addItem', item);
         this.getChildControl('textfield').setValue('');
 
-        //if the selected one was the last one, include dummy item
-        if (this.getChildControl('list').getChildren() && this.getChildControl('list').getChildren().length === 0)
-        {
+        // if the selected one was the last one, include dummy item
+        if (this.getChildControl('list').getChildren() && this.getChildControl('list').getChildren().length === 0) {
           this.setHintText(this.getTypeInText());
           this.getChildControl('list').add(this._dummy);
         }
