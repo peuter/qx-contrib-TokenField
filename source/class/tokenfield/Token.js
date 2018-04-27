@@ -164,7 +164,8 @@ qx.Class.define("tokenfield.Token",
      * The path to the label in the model
      */
     labelPath : {
-      init : "label"
+      init : "label",
+      event: 'changeLabelPath'
     },
 
     /**
