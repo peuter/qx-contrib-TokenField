@@ -21,13 +21,15 @@ qx.Theme.define("tokenfield.theme.modern.Appearance",
     {
       include : 'listitem',
       style : function(states) {
+        console.log(states);
         return {
           decorator : 'group',
           textColor : states.hovered ? '#314a6e' : states.head ? '#FF0000' : '#000000',
           height : 18,
           padding : [1, 6, 1, 6],
           margin : 0,
-          icon : states.close ? "decoration/window/close-active.png" : "decoration/window/close-inactive.png"
+          icon : states.close ? "decoration/window/close-active.png" : undefined
+          //icon : states.hovered ? "decoration/window/close-active.png" : "decoration/window/close-inactive.png"
         };
       }
     }

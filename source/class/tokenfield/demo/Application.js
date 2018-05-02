@@ -16,6 +16,7 @@
 
 /**
  * Tokenfield Demo Application
+ * @asset(demo/flags/*)
  */
 qx.Class.define("tokenfield.demo.Application",
 {
@@ -55,7 +56,11 @@ qx.Class.define("tokenfield.demo.Application",
       });
 
       // mockup country data
-      var mockdata = getCountryData();
+      var mockdata = getCountryData().map(function(item){
+        item.icon = 'demo/flags/' + item.code.toLowerCase() + '.png';
+        return item;
+      });
+      
 
       var t = new tokenfield.Token();
       t.setWidth(500);
@@ -63,6 +68,7 @@ qx.Class.define("tokenfield.demo.Application",
       t.setSelectionMode('multi');
       t.setSelectOnce(true);
       t.setLabelPath("name");
+      t.setIconPath("icon");
       t.setDelegate({
         createItem: function () {
           // you can use other widgets here
@@ -162,7 +168,7 @@ qx.Class.define("tokenfield.demo.Application",
 
       // select token from external code
       bt = new qx.ui.form.Button('Add Germany');
-      var germany = {name: 'Germany', code: 'DE'};
+      var germany = {name: 'Germany', code: 'DE', icon: 'demo/flags/de.png'};
       bt.addListener("execute", function(e) {
         t.selectItem(germany);
       });
