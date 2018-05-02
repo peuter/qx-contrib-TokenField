@@ -712,10 +712,10 @@ qx.Class.define('tokenfield.Token',
     },
 
     /**
-     * Removes a token from the selection id it matches the data label.
+     * Removes a token from the selection if it matches the data label.
      * @param data {Map} model
      */
-    removeItem: function (data) {
+    deselectItem: function (data) {
       var model = qx.data.marshal.Json.createModel(data);
       var label = model.get(this.getLabelPath());
       this.getSelection().forEach(function (item) {
