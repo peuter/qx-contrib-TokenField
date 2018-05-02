@@ -60,7 +60,6 @@ qx.Class.define("tokenfield.demo.Application",
         item.icon = 'demo/flags/' + item.code.toLowerCase() + '.png';
         return item;
       });
-      
 
       var t = new tokenfield.Token();
       t.setWidth(500);
@@ -194,7 +193,7 @@ qx.Class.define("tokenfield.demo.Application",
       this.getRoot().add(bt,{
         top : 230,
         left : 600
-      });
+      }); 
 
       // listen to text-field content
       t.addListener('changeText', function(ev) {

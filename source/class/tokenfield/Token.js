@@ -250,7 +250,7 @@ qx.Class.define('tokenfield.Token',
       //label.setValue(textField.getValue());
       textField.setWidth(label.getBounds()['width'] + 8);
     }, this);
-    textField.addListener('mousedown', function (e) {
+    textField.addListener('pointerdown', function (e) {
       e.stop();
     });
     this.addListener('click', this._onClick);
@@ -327,7 +327,7 @@ qx.Class.define('tokenfield.Token',
           control = new qx.ui.popup.Popup(new qx.ui.layout.VBox);
           control.setAutoHide(true);
           control.setKeepActive(true);
-          control.addListener('mouseup', this.close, this);
+          control.addListener('pointerup', this.close, this);
           control.add(this.getChildControl('list'));
           control.addListener('changeVisibility', this._onPopupChangeVisibility, this);
           break;
@@ -335,6 +335,9 @@ qx.Class.define('tokenfield.Token',
       return control || this.base(arguments, id);
     },
 
+    /**
+     * Applies the 'delegate' property
+     */
     _applyDelegate: function (value) {
       if (value) {
         if (value.hasOwnProperty('createItem')) {
@@ -345,12 +348,20 @@ qx.Class.define('tokenfield.Token',
       }
     },
 
+    /**
+     * Creates a token widget and binds the model data
+     * @return {qx.ui.core.Widget}
+     */
     _createBoundItem: function (model) {
       var item = this.__createItem();
       this.__bindItem(model, item);
       return item;
     },
 
+    /**
+     * Creates a token widget, usually a {qx.ui.form.ListItem}
+     * @return {qx.ui.core.Widget}
+     */
     __createItem: function () {
       var delegate = this.getDelegate();
       var item;
@@ -361,12 +372,15 @@ qx.Class.define('tokenfield.Token',
       }
       if (delegate && delegate.hasOwnProperty('configureItem')) {
         delegate.configureItem(item);
-      } else {
+      } else if (typeof item.setRich === "function" ){
         item.setRich(true);
       }
       return item;
     },
 
+    /**
+     * Binds the model data to the token widget 
+     */
     __bindItem: function (model, item) {
       var delegate = this.getDelegate();
       if (delegate && delegate.bindItem != null) {
@@ -582,7 +596,7 @@ qx.Class.define('tokenfield.Token',
       var current = e.getData();
       if (current.length > 0)
       {
-        // Ignore quick context (e.g. mouseover)
+        // Ignore quick context (e.g. pointerover)
         // and configure the new value when closing the popup afterwards
         var list = this.getChildControl('list');
         var popup = this.getChildControl('popup');
@@ -797,6 +811,8 @@ qx.Class.define('tokenfield.Token',
         item.setLabel(old.getModel().get(this.getLabelPath()));
         item.setModel(old.getModel());
         item.getChildControl('icon').setAnonymous(false);
+        item.setIconPosition('right');
+        // clicking on icon deselects item
         item.getChildControl('icon').addListener('click', function (e) {
           if (this.__selected) {
             this.__selected.removeState('head');
@@ -806,6 +822,7 @@ qx.Class.define('tokenfield.Token',
           e.stop();
           this.tabFocus();
         }, this);
+        // clicking on item adds the 'head' state
         item.addListener('click', function (e) {
           item.addState('head');
           if (this.__selected != null && this.__selected !== item) {
@@ -814,16 +831,26 @@ qx.Class.define('tokenfield.Token',
           this.__selected = item;
           e.stop();
         }, this);
-        item.setIconPosition('right');
-        item.getChildControl('icon').addListener('mouseover', function () {
+        // hovering over icon adds the 'close' state
+        item.getChildControl('icon').addListener('pointerover', function (e) {
           item.addState('close');
         });
-        item.getChildControl('icon').addListener('mouseout', function () {
+        item.getChildControl('icon').addListener('pointerout', function (e) {
           item.removeState('close');
+        });   
+        // hovering over token shows close hbutton 
+        item.addListener('pointerover', function (e) {
+          this.__imageSource = item.getChildControl('icon').getSource();
+          item.getChildControl('icon').setSource("decoration/window/close-active.png");
         });
+        item.addListener('pointerout', function (e) {
+          item.getChildControl('icon').setSource(this.__imageSource);
+        });           
+        // 'facebook' style tokens
         if (this.getStyle() !== 'facebook') {
           item.getChildControl('label').setWidth(this.getWidth() - 29);
         }
+        // insert
         this._addBefore(item, this.getChildControl('textfield'));
         this.addToSelection(item);
         this.fireDataEvent('addItem', item);
