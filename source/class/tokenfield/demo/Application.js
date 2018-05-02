@@ -180,7 +180,7 @@ qx.Class.define("tokenfield.demo.Application",
         left : 600
       });
 
-      // close popup when there are not results
+      // close popup when there are no results
       bt = new qx.ui.form.ToggleButton('Do not show popup, when empty');
       bt.addListener("execute", function(ev) {
         t.setCloseWhenNoResults(ev.getTarget().getValue())
