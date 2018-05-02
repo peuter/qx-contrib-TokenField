@@ -63,6 +63,16 @@ qx.Class.define("tokenfield.demo.Application",
       t.setSelectionMode('multi');
       t.setSelectOnce(true);
       t.setLabelPath("name");
+      t.setDelegate({
+        createItem: function () {
+          // you can use other widgets here
+          return new qx.ui.form.ListItem();
+        },
+        bindItem: function (controller, model, item) {
+          controller.bindDefaultProperties(model, item);
+          // you can bind other properties to the list item if needed here
+        }
+      });
 
       // todo: should be setTypeInText, but that doesn't work
       t.setHintText("Please enter at least two letters of a country name...");
@@ -149,6 +159,41 @@ qx.Class.define("tokenfield.demo.Application",
         top : 140,
         left : 600
       });
+
+      // select token from external code
+      bt = new qx.ui.form.Button('Add Germany');
+      var germany = {name: 'Germany', code: 'DE'};
+      bt.addListener("execute", function(e) {
+        t.selectItem(germany);
+      });
+      this.getRoot().add(bt,{
+        top : 170,
+        left : 600
+      });
+      // unselect
+      bt = new qx.ui.form.Button('Remove Germany');
+      bt.addListener("execute", function() {
+        t.deselectItem(germany);
+      });
+      this.getRoot().add(bt,{
+        top : 200,
+        left : 600
+      });
+
+      // close popup when there are no results
+      bt = new qx.ui.form.ToggleButton('Do not show popup, when empty');
+      bt.addListener("execute", function(ev) {
+        t.setCloseWhenNoResults(ev.getTarget().getValue())
+      });
+      this.getRoot().add(bt,{
+        top : 230,
+        left : 600
+      });
+
+      // listen to text-field content
+      t.addListener('changeText', function(ev) {
+        console.log('Text value: '  + ev.getData());
+      })
 
       /*
        * some mockup country data. might not be up to date
