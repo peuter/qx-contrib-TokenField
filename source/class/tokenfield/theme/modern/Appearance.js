@@ -24,6 +24,7 @@ qx.Theme.define("tokenfield.theme.modern.Appearance",
         return {
           decorator : 'group',
           textColor : states.hovered ? '#314a6e' : '#000000',
+          backgroundColor: states.head ? '#4d94ff' : undefined,
           height : 18,
           padding : [1, 6, 1, 6],
           margin : 1,

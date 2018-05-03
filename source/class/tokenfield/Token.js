@@ -423,6 +423,8 @@ qx.Class.define('tokenfield.Token',
 
       //field.selectAllText();
     },
+
+    // overridden
     tabBlur: function ()
     {
       var field = this.getChildControl('textfield');
@@ -430,7 +432,6 @@ qx.Class.define('tokenfield.Token',
     },
 
     // overridden
-
     /**
      * @lint ignoreReferenceField(_forwardStates)
      */
@@ -557,6 +558,7 @@ qx.Class.define('tokenfield.Token',
      */
     _onInputChange: function (e) {
       var str = e.getData();
+
       var timer = qx.util.TimerManager.getInstance();
 
       // check for the old listener
@@ -568,6 +570,7 @@ qx.Class.define('tokenfield.Token',
 
       if (str == null || (str != null && str.length < this.getMinChars())) {
         this.setText(str);
+        this.close();
         return false;
       }
 
@@ -831,6 +834,21 @@ qx.Class.define('tokenfield.Token',
           this.__selected = item;
           e.stop();
         }, this);
+        // double-clicking on item reverts token into editable text
+        item.addListener('dblclick', function (e) {
+          if (this.__selected) {
+            this.__selected.removeState('head');
+            this.__selected = null;
+          }          
+          var textfield = this.getChildControl('textfield');
+          this._addBefore(textfield,item);
+          textfield.set({
+            value: item.getLabel()
+          });
+          this.tabFocus();
+          this.search(item.getLabel());
+          this._deselectItem(item);
+        }, this);        
         // hovering over icon adds the 'close' state
         item.getChildControl('icon').addListener('pointerover', function (e) {
           item.addState('close');
@@ -845,7 +863,9 @@ qx.Class.define('tokenfield.Token',
           item.getChildControl('icon').setSource("decoration/window/close-active.png");
         });
         item.addListener('pointerout', function (e) {
-          item.getChildControl('icon').setSource(this.__imageSource);
+          if( this.__imageSource ) {
+            item.getChildControl('icon').setSource(this.__imageSource);
+          }
         });           
         // 'facebook' style tokens
         if (this.getStyle() !== 'facebook') {
