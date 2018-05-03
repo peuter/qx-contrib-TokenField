@@ -73,6 +73,13 @@ qx.Class.define("tokenfield.demo.Application",
           // you can use other widgets here
           return new qx.ui.form.ListItem();
         },
+        configureItem: function(item){
+          // set minimum width to match flags
+          item.getChildControl('icon').set({
+            minWidth : 20
+          });
+          item.setRich(true);
+        },
         bindItem: function (controller, model, item) {
           controller.bindDefaultProperties(model, item);
           // you can bind other properties to the list item if needed here

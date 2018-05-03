@@ -810,8 +810,8 @@ qx.Class.define('tokenfield.Token',
         item.setAppearance('tokenitem');
         item.setLabel(old.getModel().get(this.getLabelPath()));
         item.setModel(old.getModel());
-        item.getChildControl('icon').setAnonymous(false);
         item.setIconPosition('right');
+        item.getChildControl('icon').setAnonymous(false);
         // clicking on icon deselects item
         item.getChildControl('icon').addListener('click', function (e) {
           if (this.__selected) {
@@ -839,6 +839,7 @@ qx.Class.define('tokenfield.Token',
           item.removeState('close');
         });   
         // hovering over token shows close hbutton 
+        // this should really be done in the appearance theme
         item.addListener('pointerover', function (e) {
           this.__imageSource = item.getChildControl('icon').getSource();
           item.getChildControl('icon').setSource("decoration/window/close-active.png");
