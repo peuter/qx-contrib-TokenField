@@ -19,7 +19,7 @@
         "email": "info AT bibliograph DOT org"
       }
     ],
-    "version": "1.0.3",
+    "version": "1.0.4",
     "qooxdoo-versions": [
       "5.0",
       "5.0.1",
