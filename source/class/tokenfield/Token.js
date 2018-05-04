@@ -528,9 +528,9 @@ qx.Class.define('tokenfield.Token',
         var length = textfield.getTextSelectionLength();
         children = this._getChildren();
         var n_children = children.length;
-        var item = this.__selected ? this.__selected : textfield;
-        index = children.indexOf(item);
-        if (item === textfield) {
+        var data = this.__selected ? this.__selected : textfield;
+        index = children.indexOf(data);
+        if (data === textfield) {
           if (key === 'Left')index -= 1;
            else index += 1;
 
@@ -552,25 +552,31 @@ qx.Class.define('tokenfield.Token',
           this.tabFocus();
         }, null, this, null, 20);
       } else if (key === 'Enter' || key === 'Space') {
+        var text = textfield.getValue().trim();
         if (this.__preSelectedItem && this.getChildControl('popup').isVisible())
         {
           this._selectItem(this.__preSelectedItem);
           this.__preSelectedItem = null;
           this.toggle();
         } else if (key === 'Space') {
-          textfield.setValue(textfield.getValue() + ' ');
+          textfield.setValue(text + ' ');
           e.stop();
-        } else if (key === 'Enter' && this.getChildControl('list').getChildren().length === 1 ){
-          // if we have exactly one choice in the list, enter will select it
+          return;
+        } else if (this.getChildControl('list').getChildren().length === 1 && textfield.getValue() !==''){
+          // if we have exactly one item in the list and text in the textfield, enter will select the item
           this._selectItem(this.getChildControl('list').getChildren()[0]);
           textfield.setValue('');
-          this.getChildControl('list').removeAll();
           this.close();
-        } else if (key === 'Enter' && this.getSelection().length || textfield.getValue().trim() ){
+        } else if ( text !== "" ){
           // we have tokens and/or textfield input
-          this.fireDataEvent('enterKeyWithContent', textfield.getValue());
+          data = {};
+          data[this.getLabelPath()] = text;
+          this.selectItem(data);
+          textfield.setValue('');
+          this.fireDataEvent('enterKeyWithContent', text);
+        } else if (this.getSelection().length){
+          this.fireDataEvent('enterKeyWithContent', "");
         }
-
       } else if (key === 'Escape') {
         this.close();
       } else if (key !== 'Left' && key !== 'Right') {
@@ -735,11 +741,11 @@ qx.Class.define('tokenfield.Token',
       var item;
       var isInSelection = false;
       this.getSelection().some(function (item) {
-        if (item.getLabel() === label) {
+        if ( item instanceof this._tokenClass && item.getLabel() === label) {
           isInSelection = true;
           return true;
         }
-      });
+      },this);
       if (isInSelection) {
         return;
       }
@@ -898,12 +904,12 @@ qx.Class.define('tokenfield.Token',
           }          
           var textfield = this.getChildControl('textfield');
           this._addBefore(textfield,item);
-          textfield.set({
-            value: item.getLabel()
-          });
-          this.tabFocus();
-          this.search(item.getLabel());
+          var label = item.getLabel();
           this._deselectItem(item);
+          textfield.setValue(label);
+          textfield.selectAllText();
+          this.tabFocus();
+          this.search(label);
         }, this);
         // 'facebook' style tokens
         if (this.getStyle() !== 'facebook') {
@@ -985,9 +991,19 @@ qx.Class.define('tokenfield.Token',
         }
       });
       return content.join(" ").trim();
+    },
+  
+    /**
+     * Returns the position of the input field
+     * @return {number}
+     */
+    getInputPosition: function(){
+      return this._getChildren().indexOf(this.getChildControl('textfield'));
     }
+  
   },
-
+  
+ 
   /*
    *****************************************************************************
       DESTRUCTOR
