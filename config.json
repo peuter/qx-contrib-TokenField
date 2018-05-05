@@ -41,7 +41,7 @@
   "let" :
   {
     "APPLICATION"  : "tokenfield.demo",
-    "QOOXDOO_PATH" : "../qooxdoo",
+    "QOOXDOO_PATH" : "qooxdoo",
     "QXTHEME"      : "tokenfield.theme.modern.Theme",
     "API_EXCLUDE"  : ["qx.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*"],
     "LOCALES"      : [ "en" ],

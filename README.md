@@ -9,7 +9,7 @@ the legacy generator.
 see [code of Demo application](source/class/tokenfield/demo/Application.js)
 
 ## API
-http://cboulanger.github.io/qx-contrib-TokenField/api/#tokenfield
+http://cboulanger.github.io/qx-contrib-TokenField/api/#tokenfield.Token
 
 ## Online demo
 http://cboulanger.github.io/qx-contrib-TokenField/
