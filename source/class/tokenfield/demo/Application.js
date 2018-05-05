@@ -11,6 +11,7 @@
    Authors:
      * Guilherme R. Aiolfi (guilhermeaiolfi)
      * Christian Boulanger (cboulanger)
+     * Tobias Bräutigam (peuter)
 
 ************************************************************************ */
 

@@ -10,7 +10,8 @@
 
    Authors:
      * Guilherme R. Aiolfi (guilhermeaiolfi)
-     * Christian Boulanger (cboulanger) - added some documentation
+     * Christian Boulanger (cboulanger)
+     * Tobias Bräutigam (peuter)
 
 ************************************************************************ */
 
