@@ -1,15 +1,14 @@
 # generator
-/api/
-/build/
-/source/script
+api/
+build/
+source/script
+
+# qooxdoo-compiler
+*-compiled/
 
 # Mac
 .DS_Store
 
-# qooxdoo-compiler
-/*-compiled/
-db.json
-resource-db.json
-
 # npm
 node_modules/
+package-lock.json
