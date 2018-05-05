@@ -934,19 +934,20 @@ qx.Class.define('tokenfield.Token',
      * Highlight the searched string fragment
      *
      * @param value {String} The phrase containing the frament to be highlighted
-     * @param query {String} The string fragment that should be highlited
+     * @param query {String} The string fragment that should be highlighted
      * @return {String} TODOC
      */
     highlight: function (value, query) {
-      if ( this.getWildcards() && this.getWildcards().find(wildcard => query.indexOf(wildcard)>-1) !== undefined) {
-        return value;
-      }
+      // if the query contains a defined wildcard character, skip highlighting
+      var isWildcard = this.getWildcards() 
+        && this.getWildcards().find(function(w){return query.indexOf(w)>-1}) !== undefined;
+      if ( isWildcard) return value;
+      // match pattern, ignore errors
       try{
         return value.replace(new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + query + ')(?![^<>]*>)(?![^&;]+;)', 'gi'), '<b>$1</b>');
       } catch (e) {
         return value;
       }
-      
     },
     
     /**
@@ -978,20 +979,25 @@ qx.Class.define('tokenfield.Token',
     },
   
     /**
-     * Returns the labels of the tokens and the textfield content, separated by " ".
+     * Returns the labels of the tokens and the textfield content, joined together
+     * by the given separator.
+     * @param tokenSeparator {String} The character to use as separator. Defaults to " ".
      * @return {String}
      */
-    getTextContent : function () {
-      let content = [];
+    getTextContent : function (tokenSeparator) {
+      if( tokenSeparator === undefined){
+        tokenSeparator = " ";
+      }
+      var content = [];
       this.getChildren().forEach( function(child){
         if( child === this._dummy) return;
         if( typeof child.getModel === "function" ){ // todo better check
           content.push(child.getLabel());
-        } else if( typeof child.getValue === "function" ) { // todo better check
+        } else if( typeof child.getValue === "function" && child.getValue() ) { // todo better check
           content.push(child.getValue());
         }
       });
-      return content.join(" ").trim();
+      return content.join(tokenSeparator).trim();
     },
   
     /**
