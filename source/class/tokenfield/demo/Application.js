@@ -117,11 +117,7 @@ qx.Class.define("tokenfield.demo.Application",
       // show selection information
       var bt = new qx.ui.form.Button('Show selection data');
       bt.addListener("execute", function(e) {
-        var data = [];
-        t.getSelection().forEach(function(item){
-            data.push(item.getLabel());
-        },this);
-        alert(data);
+        alert(t.getTextContent("|"));
       });
       this.getRoot().add(bt,
       {
