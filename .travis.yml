@@ -10,6 +10,8 @@ install:
 
 script:
   - qx compile --target=build
+  - ./generate.py api
+  - mv api build-compiled/
 
 deploy:
   provider: pages
