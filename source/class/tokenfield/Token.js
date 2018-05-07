@@ -691,7 +691,7 @@ qx.Class.define('tokenfield.Token',
       var item;
       var isInSelection = false;
       this.getSelection().some(function (item) {
-        if (item.getLabel() === label) {
+        if (item.getLabel && item.getLabel() === label) {
           isInSelection = true;
           return true;
         }
