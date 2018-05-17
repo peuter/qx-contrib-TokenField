@@ -1,11 +1,18 @@
+#cache:
+#  directories:
+#    - node_modules
+
 install:
   - npm install 
   - pushd node_modules/qxcompiler 
   - npm link
   - popd
+  - git clone --depth 1 https://github.com/qooxdoo/qooxdoo.git
 
 script:
   - qx compile --target=build
+  - ./generate.py api
+  - mv api build-compiled/
 
 deploy:
   provider: pages

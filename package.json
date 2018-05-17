@@ -1,6 +1,6 @@
 {
   "name": "qx-contrib-tokenfield",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A widget implementing the token field concept",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/cboulanger/qx-contrib-TokenField.git"
   },
-  "author": "Guilherme R. Aiolfi (guilhermeaiolfi)",
+  "author": "Guilherme R. Aiolfi (guilhermeaiolfi), Christian Boulanger (cboulanger), Tobias Bräutigam (peuter)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/cboulanger/qx-contrib-TokenField/issues"

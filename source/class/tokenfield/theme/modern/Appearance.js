@@ -20,14 +20,15 @@ qx.Theme.define("tokenfield.theme.modern.Appearance",
     'tokenitem' :
     {
       include : 'listitem',
-      style : function(states) {
+      style : function(states, styles) {
         return {
           decorator : 'group',
-          textColor : states.hovered ? '#314a6e' : states.head ? '#FF0000' : '#000000',
+          textColor : states.hovered ? '#314a6e' : '#000000',
+          backgroundColor: states.head ? '#4d94ff' : undefined,
           height : 18,
           padding : [1, 6, 1, 6],
-          margin : 0,
-          icon : states.close ? "decoration/window/close-active.png" : "decoration/window/close-inactive.png"
+          margin : 1,
+          icon : states.hovered ? "decoration/window/close-active.png" : "decoration/window/close-inactive.png"
         };
       }
     }

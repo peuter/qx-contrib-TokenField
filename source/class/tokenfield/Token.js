@@ -10,7 +10,8 @@
 
    Authors:
      * Guilherme R. Aiolfi (guilhermeaiolfi)
-     * Christian Boulanger (cboulanger) - added some documentation
+     * Christian Boulanger (cboulanger)
+     * Tobias Bräutigam (peuter)
 
 ************************************************************************ */
 
@@ -53,7 +54,14 @@ qx.Class.define('tokenfield.Token',
      * it may come and call populateList() with the string fragment and the
      * received data.
      */
-    loadData : 'qx.event.type.Data'
+    loadData : 'qx.event.type.Data',
+  
+    /**
+     * This event is fired when the enter key is pressed in the textfield with
+     * tokens or text input present. This can be useful when used as a search box. The event data
+     * is the content of the textfield
+     */
+    enterKeyWithContent :'qx.event.type.Data'
   },
 
   /*
@@ -223,6 +231,22 @@ qx.Class.define('tokenfield.Token',
     closeWhenNoResults: {
       check: 'Boolean',
       init: false
+    },
+  
+    /**
+     * Whether the close button should be shown in the token
+     */
+    showCloseButton: {
+      check: 'Boolean',
+      init: true
+    },
+  
+    /**
+     * These wildcards are allowed in matching token values
+     */
+    wildcards:{
+      check: 'Array',
+      init : null
     }
   },
 
@@ -250,7 +274,7 @@ qx.Class.define('tokenfield.Token',
       //label.setValue(textField.getValue());
       textField.setWidth(label.getBounds()['width'] + 8);
     }, this);
-    textField.addListener('mousedown', function (e) {
+    textField.addListener('pointerdown', function (e) {
       e.stop();
     });
     this.addListener('click', this._onClick);
@@ -327,7 +351,7 @@ qx.Class.define('tokenfield.Token',
           control = new qx.ui.popup.Popup(new qx.ui.layout.VBox);
           control.setAutoHide(true);
           control.setKeepActive(true);
-          control.addListener('mouseup', this.close, this);
+          control.addListener('pointerup', this.close, this);
           control.add(this.getChildControl('list'));
           control.addListener('changeVisibility', this._onPopupChangeVisibility, this);
           break;
@@ -335,6 +359,9 @@ qx.Class.define('tokenfield.Token',
       return control || this.base(arguments, id);
     },
 
+    /**
+     * Applies the 'delegate' property
+     */
     _applyDelegate: function (value) {
       if (value) {
         if (value.hasOwnProperty('createItem')) {
@@ -345,12 +372,20 @@ qx.Class.define('tokenfield.Token',
       }
     },
 
+    /**
+     * Creates a token widget and binds the model data
+     * @return {qx.ui.core.Widget}
+     */
     _createBoundItem: function (model) {
       var item = this.__createItem();
       this.__bindItem(model, item);
       return item;
     },
 
+    /**
+     * Creates a token widget, usually a {qx.ui.form.ListItem}
+     * @return {qx.ui.core.Widget}
+     */
     __createItem: function () {
       var delegate = this.getDelegate();
       var item;
@@ -362,11 +397,16 @@ qx.Class.define('tokenfield.Token',
       if (delegate && delegate.hasOwnProperty('configureItem')) {
         delegate.configureItem(item);
       } else {
-        item.setRich(true);
+        if ( item instanceof qx.ui.form.ListItem ){
+          item.setRich(true);
+        }
       }
       return item;
     },
 
+    /**
+     * Binds the model data to the token widget 
+     */
     __bindItem: function (model, item) {
       var delegate = this.getDelegate();
       if (delegate && delegate.bindItem != null) {
@@ -409,6 +449,8 @@ qx.Class.define('tokenfield.Token',
 
       //field.selectAllText();
     },
+
+    // overridden
     tabBlur: function ()
     {
       var field = this.getChildControl('textfield');
@@ -416,7 +458,6 @@ qx.Class.define('tokenfield.Token',
     },
 
     // overridden
-
     /**
      * @lint ignoreReferenceField(_forwardStates)
      */
@@ -452,16 +493,15 @@ qx.Class.define('tokenfield.Token',
     _onKeyPress: function (e)
     {
       var key = e.getKeyIdentifier();
-      var textfield, children, index;
+      var children, index;
       var list = this.getChildControl('popup');
+      var textfield = this.getChildControl('textfield');
       if (key === 'Down' && !list.isVisible())
       {
         this.open();
         e.stopPropagation();
         e.stop();
-      } else if (key === 'Backspace' || key === 'Delete')
-      {
-        textfield = this.getChildControl('textfield');
+      } else if (key === 'Backspace' || key === 'Delete') {
         var value = textfield.getValue();
         children = this._getChildren();
         index = children.indexOf(textfield);
@@ -478,24 +518,20 @@ qx.Class.define('tokenfield.Token',
             this.focus();
           }
 
-        } else if (this.__selected)
-        {
+        } else if (this.__selected) {
           this._deselectItem(this.__selected);
           this.__selected = null;
           this.tabFocus();
           e.stop();
         }
-
-      } else if (key === 'Left' || key === 'Right')
-      {
-        textfield = this.getChildControl('textfield');
+      } else if (key === 'Left' || key === 'Right')  {
         var start = textfield.getTextSelectionStart();
         var length = textfield.getTextSelectionLength();
         children = this._getChildren();
         var n_children = children.length;
-        var item = this.__selected ? this.__selected : textfield;
-        index = children.indexOf(item);
-        if (item === textfield) {
+        var data = this.__selected ? this.__selected : textfield;
+        index = children.indexOf(data);
+        if (data === textfield) {
           if (key === 'Left')index -= 1;
            else index += 1;
 
@@ -517,18 +553,31 @@ qx.Class.define('tokenfield.Token',
           this.tabFocus();
         }, null, this, null, 20);
       } else if (key === 'Enter' || key === 'Space') {
+        var text = textfield.getValue().trim();
         if (this.__preSelectedItem && this.getChildControl('popup').isVisible())
         {
           this._selectItem(this.__preSelectedItem);
           this.__preSelectedItem = null;
           this.toggle();
-        } else if (key === 'Space')
-        {
-          textfield = this.getChildControl('textfield');
-          textfield.setValue(textfield.getValue() + ' ');
+        } else if (key === 'Space') {
+          textfield.setValue(text + ' ');
           e.stop();
+          return;
+        } else if (this.getChildControl('list').getChildren().length === 1 && textfield.getValue() !==''){
+          // if we have exactly one item in the list and text in the textfield, enter will select the item
+          this._selectItem(this.getChildControl('list').getChildren()[0]);
+          textfield.setValue('');
+          this.close();
+        } else if ( text !== "" ){
+          // we have tokens and/or textfield input
+          data = {};
+          data[this.getLabelPath()] = text;
+          this.selectItem(data);
+          textfield.setValue('');
+          this.fireDataEvent('enterKeyWithContent', text);
+        } else if (this.getSelection().length){
+          this.fireDataEvent('enterKeyWithContent', "");
         }
-
       } else if (key === 'Escape') {
         this.close();
       } else if (key !== 'Left' && key !== 'Right') {
@@ -543,6 +592,7 @@ qx.Class.define('tokenfield.Token',
      */
     _onInputChange: function (e) {
       var str = e.getData();
+
       var timer = qx.util.TimerManager.getInstance();
 
       // check for the old listener
@@ -554,6 +604,7 @@ qx.Class.define('tokenfield.Token',
 
       if (str == null || (str != null && str.length < this.getMinChars())) {
         this.setText(str);
+        this.close();
         return false;
       }
 
@@ -567,7 +618,6 @@ qx.Class.define('tokenfield.Token',
     // overridden
     _onListPointerDown: function ()
     {
-      this.debug(this.__preSelectedItem);
       // Apply pre-selected item (translate quick selection to real selection)
       if (this.__preSelectedItem)
       {
@@ -582,7 +632,7 @@ qx.Class.define('tokenfield.Token',
       var current = e.getData();
       if (current.length > 0)
       {
-        // Ignore quick context (e.g. mouseover)
+        // Ignore quick context (e.g. pointerover)
         // and configure the new value when closing the popup afterwards
         var list = this.getChildControl('list');
         var popup = this.getChildControl('popup');
@@ -633,6 +683,7 @@ qx.Class.define('tokenfield.Token',
     populateList: function (str, data) {
       this.cache.add(str, qx.data.marshal.Json.createModel(data));
       var result = this.cache.get(str);
+      if( ! result ) return;
       var list = this.getChildControl('list');
       list.removeAll();
       if (result.getLength() === 0) {
@@ -691,11 +742,11 @@ qx.Class.define('tokenfield.Token',
       var item;
       var isInSelection = false;
       this.getSelection().some(function (item) {
-        if (item.getLabel && item.getLabel() === label) {
+        if ( item instanceof this._tokenClass && item.getLabel() === label) {
           isInSelection = true;
           return true;
         }
-      });
+      },this);
       if (isInSelection) {
         return;
       }
@@ -719,7 +770,7 @@ qx.Class.define('tokenfield.Token',
       var model = qx.data.marshal.Json.createModel(data);
       var label = model.get(this.getLabelPath());
       this.getSelection().forEach(function (item) {
-        if (item.getLabel() === label) {
+        if (label && item.getLabel() === label) {
           this._deselectItem(item);
           return true;
         }
@@ -794,18 +845,50 @@ qx.Class.define('tokenfield.Token',
       if (old && old.constructor === this._tokenClass) {
         var item = this.getSelectOnce() ? old : this.__createItem();
         item.setAppearance('tokenitem');
-        item.setLabel(old.getModel().get(this.getLabelPath()));
-        item.setModel(old.getModel());
-        item.getChildControl('icon').setAnonymous(false);
-        item.getChildControl('icon').addListener('click', function (e) {
-          if (this.__selected) {
-            this.__selected.removeState('head');
-            this.__selected = null;
-          }
-          this._deselectItem(item);
-          e.stop();
-          this.tabFocus();
-        }, this);
+        if( old.getModel() ){
+          item.setLabel(old.getModel().get(this.getLabelPath()));
+          item.setModel(old.getModel());
+        } else {
+          //todo this shouldn't happen.
+          this.warn('Cannot select item.');
+          return;
+        }
+        // close button
+        if( this.getShowCloseButton() === false){
+          item.setShow('label');
+        } else {
+          item.setIconPosition('right');
+          item.getChildControl('icon').setAnonymous(false);
+          // clicking on icon deselects item
+          item.getChildControl('icon').addListener('click', function (e) {
+            if (this.__selected) {
+              this.__selected.removeState('head');
+              this.__selected = null;
+            }
+            this._deselectItem(item);
+            e.stop();
+            this.tabFocus();
+          }, this);
+          // hovering over icon adds the 'close' state
+          item.getChildControl('icon').addListener('pointerover', function (e) {
+            item.addState('close');
+          });
+          item.getChildControl('icon').addListener('pointerout', function (e) {
+            item.removeState('close');
+          });
+          // hovering over token shows close button
+          // this should really be done in the appearance theme
+          item.addListener('pointerover', function (e) {
+            this.__imageSource = item.getChildControl('icon').getSource();
+            item.getChildControl('icon').setSource("decoration/window/close-active.png");
+          });
+          item.addListener('pointerout', function (e) {
+            if( this.__imageSource ) {
+              item.getChildControl('icon').setSource(this.__imageSource);
+            }
+          });
+        }
+        // clicking on item adds the 'head' state
         item.addListener('click', function (e) {
           item.addState('head');
           if (this.__selected != null && this.__selected !== item) {
@@ -814,16 +897,26 @@ qx.Class.define('tokenfield.Token',
           this.__selected = item;
           e.stop();
         }, this);
-        item.setIconPosition('right');
-        item.getChildControl('icon').addListener('mouseover', function () {
-          item.addState('close');
-        });
-        item.getChildControl('icon').addListener('mouseout', function () {
-          item.removeState('close');
-        });
+        // double-clicking on item reverts token into editable text
+        item.addListener('dblclick', function (e) {
+          if (this.__selected) {
+            this.__selected.removeState('head');
+            this.__selected = null;
+          }          
+          var textfield = this.getChildControl('textfield');
+          this._addBefore(textfield,item);
+          var label = item.getLabel();
+          this._deselectItem(item);
+          textfield.setValue(label);
+          textfield.selectAllText();
+          this.tabFocus();
+          this.search(label);
+        }, this);
+        // 'facebook' style tokens
         if (this.getStyle() !== 'facebook') {
           item.getChildControl('label').setWidth(this.getWidth() - 29);
         }
+        // insert
         this._addBefore(item, this.getChildControl('textfield'));
         this.addToSelection(item);
         this.fireDataEvent('addItem', item);
@@ -841,14 +934,83 @@ qx.Class.define('tokenfield.Token',
      * Highlight the searched string fragment
      *
      * @param value {String} The phrase containing the frament to be highlighted
-     * @param query {String} The string fragment that should be highlited
+     * @param query {String} The string fragment that should be highlighted
      * @return {String} TODOC
      */
     highlight: function (value, query) {
-      return value.replace(new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + query + ')(?![^<>]*>)(?![^&;]+;)', 'gi'), '<b>$1</b>');
+      // if the query contains a defined wildcard character, skip highlighting
+      var isWildcard = this.getWildcards() 
+        && this.getWildcards().find(function(w){return query.indexOf(w)>-1}) !== undefined;
+      if ( isWildcard) return value;
+      // match pattern, ignore errors
+      try{
+        return value.replace(new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + query + ')(?![^<>]*>)(?![^&;]+;)', 'gi'), '<b>$1</b>');
+      } catch (e) {
+        return value;
+      }
+    },
+    
+    /**
+     * Return the models of the visible tokens
+     * @return {Array}
+     */
+    getTokenModels : function(){
+      var models = [];
+      this.getChildren().forEach( function(child){
+        if( typeof child.getModel === "function" ){
+          models.push(child.getModel());
+        }
+      });
+      return models;
+    },
+  
+    /**
+     * Return the labels of the visible tokens
+     * @return {Array}
+     */
+    getTokenLabels : function(){
+      var labels = [];
+      this.getChildren().forEach( function(child){
+        if( typeof child.getModel === "function" ){ // todo better check
+          labels.push(child.getLabel());
+        }
+      });
+      return labels;
+    },
+  
+    /**
+     * Returns the labels of the tokens and the textfield content, joined together
+     * by the given separator.
+     * @param tokenSeparator {String} The character to use as separator. Defaults to " ".
+     * @return {String}
+     */
+    getTextContent : function (tokenSeparator) {
+      if( tokenSeparator === undefined){
+        tokenSeparator = " ";
+      }
+      var content = [];
+      this.getChildren().forEach( function(child){
+        if( child === this._dummy) return;
+        if( typeof child.getModel === "function" ){ // todo better check
+          content.push(child.getLabel());
+        } else if( typeof child.getValue === "function" && child.getValue() ) { // todo better check
+          content.push(child.getValue());
+        }
+      });
+      return content.join(tokenSeparator).trim();
+    },
+  
+    /**
+     * Returns the position of the input field
+     * @return {number}
+     */
+    getInputPosition: function(){
+      return this._getChildren().indexOf(this.getChildControl('textfield'));
     }
+  
   },
-
+  
+ 
   /*
    *****************************************************************************
       DESTRUCTOR

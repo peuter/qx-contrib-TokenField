@@ -1,7 +1,5 @@
-/** <h3> tokenfield API Documentation </h3>
+/** <h3> TokenField contrib API Documentation </h3>
  *
- * This text will be used in the API documentation of your contribution
- * generated with __generate.py api__. You should replace this text with an
- * overview of your contribution and an introduction on how to use it.
+ * A widget implementing the token field concept known from [Mac OS](https://developer.apple.com/macos/human-interface-guidelines/fields-and-labels/token-fields/) for the qooxdoo framework.
  *
  */

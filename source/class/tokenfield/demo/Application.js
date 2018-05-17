@@ -11,11 +11,13 @@
    Authors:
      * Guilherme R. Aiolfi (guilhermeaiolfi)
      * Christian Boulanger (cboulanger)
+     * Tobias Bräutigam (peuter)
 
 ************************************************************************ */
 
 /**
  * Tokenfield Demo Application
+ * @asset(demo/flags/*)
  */
 qx.Class.define("tokenfield.demo.Application",
 {
@@ -55,7 +57,10 @@ qx.Class.define("tokenfield.demo.Application",
       });
 
       // mockup country data
-      var mockdata = getCountryData();
+      var mockdata = getCountryData().map(function(item){
+        item.icon = 'demo/flags/' + item.code.toLowerCase() + '.png';
+        return item;
+      });
 
       var t = new tokenfield.Token();
       t.setWidth(500);
@@ -63,10 +68,18 @@ qx.Class.define("tokenfield.demo.Application",
       t.setSelectionMode('multi');
       t.setSelectOnce(true);
       t.setLabelPath("name");
+      t.setIconPath("icon");
       t.setDelegate({
         createItem: function () {
           // you can use other widgets here
           return new qx.ui.form.ListItem();
+        },
+        configureItem: function(item){
+          // set minimum width to match flags
+          item.getChildControl('icon').set({
+            minWidth : 20
+          });
+          item.setRich(true);
         },
         bindItem: function (controller, model, item) {
           controller.bindDefaultProperties(model, item);
@@ -104,11 +117,7 @@ qx.Class.define("tokenfield.demo.Application",
       // show selection information
       var bt = new qx.ui.form.Button('Show selection data');
       bt.addListener("execute", function(e) {
-        var data = [];
-        t.getSelection().forEach(function(item){
-            data.push(item.getLabel());
-        },this);
-        alert(data);
+        alert(t.getTextContent("|"));
       });
       this.getRoot().add(bt,
       {
@@ -162,7 +171,7 @@ qx.Class.define("tokenfield.demo.Application",
 
       // select token from external code
       bt = new qx.ui.form.Button('Add Germany');
-      var germany = {name: 'Germany', code: 'DE'};
+      var germany = {name: 'Germany', code: 'DE', icon: 'demo/flags/de.png'};
       bt.addListener("execute", function(e) {
         t.selectItem(germany);
       });
@@ -188,7 +197,7 @@ qx.Class.define("tokenfield.demo.Application",
       this.getRoot().add(bt,{
         top : 230,
         left : 600
-      });
+      }); 
 
       // listen to text-field content
       t.addListener('changeText', function(ev) {
